@@ -69,10 +69,63 @@ head(banking_stats)
 tail(banking_stats)
 
 
+# filtering dataframe to include data for 3, 6, 9, 12 months
+# or 1st, 2nd, 3rd and 4th Quarters
+
+banking_stats_filtered <- banking_stats %>% 
+  filter(format(Date, "%m") %in% c("03", "06", "09", "12"))
+head(banking_stats_filtered)
+
+banking_stats_filtered$Value <- as.numeric(banking_stats_filtered$Value)
+banking_stats_filtered$Value_billion <- banking_stats_filtered$Value/1000000000
+str(banking_stats_filtered)
+glimpse(banking_stats_filtered)
+summary(banking_stats_filtered)
+
+# creating a line plot
+ggplot(banking_stats_filtered, aes(x = Date, y = Value_billion))+
+  geom_line()+
+  geom_point()+
+  labs(
+    x = "year",
+    y = 'Total Assets (Billions KZT)',
+    title = "Total Assets of Banking System"
+  )+
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Operational loss type 1
+
+or_type1 <- as.data.frame(lossdat[[1]])
+head(or_type1)
+tail(or_type1)
+cat("\n Missing values per columns \n")
+colSums(is.na(or_type1))
+
+duplicated_rows <- or_type1[duplicated(or_type1),]
+if(nrow(duplicated_rows)>0){
+  print(duplicated_rows)
+}else{
+  cat("No duplicated rows found \n")
+}
+
+summary(or_type1)
+glimpse(or_type1)
+str(or_type1)
+
+# histogram of distribution of operational Risk Losses type1
+ggplot(or_type1, mapping = aes(x = Loss))+
+  geom_histogram(binwidth = 50, fill="blue", color="black", alpha=0.7)+
+  labs(title = "histogram of Operation Risk type 1",
+       x = "Loss Amount (USD)", y = "Frequency")+
+  theme_bw()
 
 
-
-
+# Boxplot of distribution of operational risk losses type1 
+ggplot(or_type1, mapping = aes(x = Loss))+
+  geom_boxplot(fill="blue", color="black", alpha=0.7)+
+  labs(title = "Boxplot of operation risk type 1", x = "Loss Amount (USD)")+
+  theme_bw()
 
 
 
