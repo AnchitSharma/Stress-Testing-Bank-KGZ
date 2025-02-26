@@ -469,7 +469,7 @@ ggplot(or_losses_total, mapping = aes(x = Total_or_Losses))+
 head(macroKZ)
 tail(macroKZ)
 view(macroKZ)
-
+?macroKZ
 macrokz_df <- data.frame(macroKZ)
 str(macrokz_df)
 
@@ -480,4 +480,166 @@ head(macrokz_df)
 
 time_period <- seq(from = as.Date("2010-04-01"), to=as.Date("2024-04-01"), by="quarter")
 macrokz_df$time_period <- time_period
+macro_df_filtered <- macrokz_df %>% 
+  dplyr::select(-imp, -exp, -GDP_DEF, -realest_resed_prim, -realest_resed_sec,
+                -realest_comm, -index_stock_weighted, -ntrade_Agr, -ntrade_Min,
+                -ntrade_Man, -ntrade_Elc, -ntrade_Con, ntrade_Trd, ntrade_Trn,
+                -ntrade_Inf, -fed_fund_rate, -govsec_rate_kzt_3m, -govsec_rate_kzt_1y,
+                -govsec_rate_kzt_7y, -govsec_rate_kzt_10y, -tonia_rate,
+                -rate_kzt_mort_0y_1y, -rate_kzt_mort_1y_iy, -rate_kzt_corp_0y_1y,
+                -rate_kzt_corp_1y_iy, -rate_usd_corp_0y_1y, -rate_usd_corp_1y_iy,
+                -rate_kzt_indv_0y_1y, -rate_kzt_indv_1y_iy, -realest_resed_prim_rus,
+                -realest_resed_sec_rus, -cred_portfolio, -coef_k1, -coef_k3,
+                -provisions, -percent_margin, -com_inc, -com_exp, -oper_inc,
+                -oth_inc, -DR)
+head(macro_df_filtered)
+
+# Variables Transformation
+# Transfroming the real GDP variable
+# Calculating yearly GDP sum (sum of every 4 quarters)
+macro_df_filtered$Yearly_GDP_Sum <- c(
+  sapply(1:(nrow(macro_df_filtered) - 3),
+         function(i) sum(macro_df_filtered$real_gdp[i:(i+3)])
+         ), rep(NA, 3)
+)
+View(macro_df_filtered %>% dplyr::select(GDD_Agr_R, Yearly_GDD_Agr_R_Sum))
+
+# Calculate growth rate as the percentage of current year's GDP
+# over the previous year GDP
+macro_df_filtered$real_gdp_y <- c(rep(NA, 4),
+                                  sapply(5:nrow(macro_df_filtered),
+                                         function(i){
+                                           previous_year_sum <- sum(macro_df_filtered$real_gdp[(i - 4):(i - 1)])
+                                           current_year_sum <- sum(macro_df_filtered$real_gdp[(i):(i + 3)])
+                                           growth_rate <- (current_year_sum / previous_year_sum - 1)*100
+                                           return(round(growth_rate, 3))
+                                         }
+                                         )
+                                  )
+
+# Transforming the Real Gross Domestic Value added Agriculture variable
+macro_df_filtered$Yearly_GDD_Agr_R_Sum <- c(
+  sapply(1:(nrow(macro_df_filtered) - 3), 
+         function(i) sum(macro_df_filtered$GDD_Agr_R[i:(i+3)])
+         ), rep(NA, 3)
+)
+
+# Calculating growth rate as the percentage of current year
+# Real gross value added Agriculture over previous year's
+# Real gross value added Agriculture
+macro_df_filtered$GDD_Agr_R_y <- c(
+  rep(NA, 4),
+  sapply(5:nrow(macro_df_filtered),
+         function(i){
+           previous_year_sum = sum(macro_df_filtered$GDD_Agr_R[(i -4):(i - 1)])
+           current_year_sum = sum(macro_df_filtered$GDD_Agr_R[(i):(i+3)])
+           growth_rate <- (current_year_sum / previous_year_sum -1)*100
+           return(round(growth_rate, 3))
+         }
+         )
+)
+
+# Transfroming Real gross value added Mining variable
+# Calculating Yearly Gross value added Mining
+macro_df_filtered$Yearly_GDD_Min_R_Sum <- c(
+  sapply(
+    1:(nrow(macro_df_filtered)-3),
+    function(i) sum(macro_df_filtered$GDD_Min_R[i:(i+3)])
+         ),
+  rep(NA, 3)
+)
+
+# Calculate growth rate as percentage of current year
+# Real gross value added Mining over previous year 
+# Real gross value added Mining
+macro_df_filtered$GDD_Min_R_y <- c(
+  rep(NA, 4),
+  sapply(5:nrow(macro_df_filtered),
+         function(i){
+           previous_year_sum <- sum(macro_df_filtered$GDD_Min_R[(i-4):(i-1)])
+           current_year_sum <- sum(macro_df_filtered$GDD_Min_R[(i):(i+3)])
+           growth_rate <- (current_year_sum/previous_year_sum - 1)*100
+           return(round(growth_rate, 3))
+         }
+         )
+)
+
+# Transforming Real gross value added Manufacture variable
+# Calculating yearly real gross value added Manufacture
+# sum (sum of every 4 quarters)
+macro_df_filtered$Yearly_GDD_Man_R_Sum <- c(
+  sapply(1:(nrow(macro_df_filtered)-3),
+         function(i) sum(macro_df_filtered$GDD_Man_R[i:(i+3)])
+         ),
+  rep(NA, 3)
+) 
+
+# Calculating growth rate as the percentage of current year
+# Gross value added Manufacture over previous year
+# Gross value added Manufacture
+macro_df_filtered$GDD_Man_R_y <- c(
+  rep(NA, 4),
+  sapply(
+    5:nrow(macro_df_filtered),
+    function(i){
+      previous_year_sum <- sum(macro_df_filtered$GDD_Man_R[(i-4):(i-1)])
+      current_year_sum <- sum(macro_df_filtered$GDD_Man_R[(i):(i+3)])
+      growth_rate <- (current_year_sum/previous_year_sum -1)*100
+      return(round(growth_rate, 3))
+    }
+  )
+)
+
+# Transfromation of Gross value added Electricity variable
+# Calculating yearly Gross value added Electricity
+macro_df_filtered$Yearly_GDD_Elc_R_Sum <- c(
+  sapply(1:(nrow(macro_df_filtered)-3),
+         function(i) sum(macro_df_filtered$GDD_Elc_R[i:(i+3)])),
+  rep(NA, 3)
+)
+
+# Calculating Growth Rate as percentage of current year
+# Gross value added Electricity over the previous year
+# Gross value added Electricity
+macro_df_filtered$GDD_Elc_R_y <- c(
+  rep(NA, 4),
+  sapply(5:nrow(macro_df_filtered),
+         function(i){
+           previous_year_sum <- sum(macro_df_filtered$GDD_Elc_R[(i-4):(i-1)])
+           current_year_sum <- sum(macro_df_filtered$GDD_Elc_R[(i):(i+3)])
+           growth_rate <- (current_year_sum/previous_year_sum-1)*100
+           return(round(growth_rate, 3))
+         }
+         )
+)
+
+# Tranformation of Gross value added Construction Variable
+# Calculating yearly Gross value added Construction
+
+macro_df_filtered$Yearly_GDD_Con_R_Sum <- c(
+  sapply(
+    1:(nrow(macro_df_filtered)-3),
+    function(i)sum(macro_df_filtered$GDD_Con_R[i:(i+3)])
+  ),
+  rep(NA, 3)
+)
+
+# Calculating Growth rate as percentage of previous year
+# Gross value added Construction over the previous year
+# Gross value added Construction
+macro_df_filtered$GDD_Con_R_y <- c(
+  rep(NA, 4),
+  sapply(5:nrow(macro_df_filtered),
+         function(i){
+           previous_year_sum <- sum(macro_df_filtered$GDD_Con_R[(i-4):(i-1)])
+           current_year_sum <- sum(macro_df_filtered$GDD_Con_R[(i):(i+3)])
+           growth_rate <- (current_year_sum/previous_year_sum - 1)*100
+           return(round(growth_rate, 3))
+         })
+)
+
+
+
+
+
 
