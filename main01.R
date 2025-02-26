@@ -127,6 +127,357 @@ ggplot(or_type1, mapping = aes(x = Loss))+
   labs(title = "Boxplot of operation risk type 1", x = "Loss Amount (USD)")+
   theme_bw()
 
+# extracting outlier from data
+Quartile_1 = quantile(or_type1$Loss, 0.25)
+Quartile_2 = quantile(or_type1$Loss, 0.75)
+
+IQR <- Quartile_2 - Quartile_1
+lower_bound = Quartile_1 - 1.5*IQR
+upper_bound = Quartile_2 + 1.5*IQR
+
+# Identifying the outliers
+outlier_loss_1 = or_type1$Loss[or_type1$Loss < lower_bound | or_type1$Loss > upper_bound]
+outlier_loss_1
+
+or_type1_cleaned <- or_type1[or_type1$Loss>= lower_bound & or_type1$Loss <= upper_bound,]
+
+summary(or_type1_cleaned)
+summary(or_type1)
+
+# Histogram of distribution of Operational Risk Losses type 1
+ggplot(data = or_type1_cleaned, aes(x = Loss))+
+  geom_histogram(binwidth = 50, fill="blue", color='black', alpha=0.7)+
+  labs(title = "histogram of Operational risk type 1 after cleansing from outliers", x = "Loss amount(USD)", y = "frequency")+
+  theme_bw()
+
+# Boxplot of distribution of operational risk losses type1
+ggplot(data=or_type1_cleaned, aes( x = Loss))+
+  geom_boxplot(fill = "blue", color="black", alpha = 0.7)+
+  labs(title = "Boxplot of Operational Type 1 Risk after the cleaning from outliers", x = "Loss amount (USD)")+
+  theme_bw()
+
+# extracting year and month from date columns
+or_type1_cleaned$year = year(or_type1_cleaned$Date)
+or_type1_cleaned$Month = month(or_type1_cleaned$Date)
+
+# group by year and month
+or_loss_type1_monthly <- or_type1_cleaned %>% 
+  dplyr::group_by(year, Month) %>% 
+  summarise(Loss_1 = sum(Loss, na.rm = TRUE), .groups = "drop")
+head(or_loss_type1_monthly)
+str(or_loss_type1_monthly)
+
+# creating "month group" column based on the specified month intervals
+or_loss_type1_monthly$Month_Group <- case_when(
+  or_loss_type1_monthly$Month %in% c(1, 2, 3)~"Q1",
+  or_loss_type1_monthly$Month %in% c(4, 5, 6)~"Q2",
+  or_loss_type1_monthly$Month %in% c(7, 8, 9)~"Q3",
+  or_loss_type1_monthly$Month %in% c(10, 11, 12 )~"Q4",
+  TRUE~"Other"
+)
+
+grouped_by_month_type1 <- or_loss_type1_monthly %>% 
+  dplyr::group_by(year, Month_Group) %>% 
+  summarise(Total_Loss_1 = sum(Loss_1, na.rm = T), .groups = "drop")
+
+grouped_by_month_type1$Year_Quarter <- paste0(grouped_by_month_type1$year, "-Q",
+                                              gsub("Q", "", grouped_by_month_type1$Month_Group))
+
+or_loss_type1_quarterly <- grouped_by_month_type1 %>% 
+  dplyr::select(Year_Quarter, Total_Loss_1)
+
+# operational risk type 2
+or_type2 <- as.data.frame(lossdat[[2]])
+head(or_type2)
+# missing values
+colSums(is.na(or_type2))
+# duplicated row
+or_type2[duplicated(or_type2),]
+
+summary(or_type2)
+
+ggplot(or_type2, mapping = aes(x = Loss))+
+  geom_histogram(binwidth = 50, fill="red", color="black", alpha=0.7)+
+  labs(title = "Histogram of operational risk type 2", x = "Loss Amount (USD)", y = "Frequency")+
+  theme_bw()
+
+ggplot(or_type2, mapping = aes(x = Loss))+
+  geom_boxplot(fill = "red", color="black", alpha = 0.7)+
+  labs(title = "Boxplot of operational risk of type 2", x = "Loss Amount (USD)")+
+  theme_bw()
 
 
+
+# extracting outlier from data
+Quartile_1 = quantile(or_type2$Loss, 0.25)
+Quartile_2 = quantile(or_type2$Loss, 0.75)
+
+IQR <- Quartile_2 - Quartile_1
+lower_bound = Quartile_1 - 1.5*IQR
+upper_bound = Quartile_2 + 1.5*IQR
+
+# Identifying the outliers
+outlier_loss_2 = or_type2$Loss[or_type2$Loss < lower_bound | or_type2$Loss > upper_bound]
+outlier_loss_2
+
+or_type2_cleaned <- or_type2[or_type2$Loss>= lower_bound & or_type2$Loss <= upper_bound,]
+
+summary(or_type2_cleaned)
+summary(or_type2)
+
+# Histogram of distribution of Operational Risk Losses type 1
+ggplot(data = or_type2_cleaned, aes(x = Loss))+
+  geom_histogram(binwidth = 50, fill="blue", color='black', alpha=0.7)+
+  labs(title = "histogram of Operational risk type 2 after cleansing from outliers", x = "Loss amount(USD)", y = "frequency")+
+  theme_bw()
+
+# Boxplot of distribution of operational risk losses type1
+ggplot(data=or_type2_cleaned, aes( x = Loss))+
+  geom_boxplot(fill = "blue", color="black", alpha = 0.7)+
+  labs(title = "Boxplot of Operational Type 2 Risk after the cleaning from outliers", x = "Loss amount (USD)")+
+  theme_bw()
+
+# extracting year and month from date columns
+or_type2_cleaned$year = year(or_type2_cleaned$Date)
+or_type2_cleaned$Month = month(or_type2_cleaned$Date)
+
+# group by year and month
+or_loss_type2_monthly <- or_type2_cleaned %>% 
+  dplyr::group_by(year, Month) %>% 
+  summarise(Loss_2 = sum(Loss, na.rm = TRUE), .groups = "drop")
+head(or_loss_type2_monthly)
+str(or_loss_type2_monthly)
+
+# creating "month group" column based on the specified month intervals
+or_loss_type2_monthly$Month_Group <- case_when(
+  or_loss_type2_monthly$Month %in% c(1, 2, 3)~"Q1",
+  or_loss_type2_monthly$Month %in% c(4, 5, 6)~"Q2",
+  or_loss_type2_monthly$Month %in% c(7, 8, 9)~"Q3",
+  or_loss_type2_monthly$Month %in% c(10, 11, 12 )~"Q4",
+  TRUE~"Other"
+)
+
+grouped_by_month_type2 <- or_loss_type2_monthly %>% 
+  dplyr::group_by(year, Month_Group) %>% 
+  summarise(Total_Loss_2 = sum(Loss_2, na.rm = T), .groups = "drop")
+
+grouped_by_month_type2$Year_Quarter <- paste0(grouped_by_month_type2$year, "-Q",
+                                              gsub("Q", "", grouped_by_month_type2$Month_Group))
+
+or_loss_type2_quarterly <- grouped_by_month_type2 %>% 
+  dplyr::select(Year_Quarter, Total_Loss_2)
+
+
+# operational risk type 3
+or_type3 <- as.data.frame(lossdat[[3]])
+
+head(or_type3)
+# missing values
+colSums(is.na(or_type3))
+# duplicated row
+or_type2[duplicated(or_type3),]
+
+summary(or_type3)
+
+ggplot(or_type3, mapping = aes(x = Loss))+
+  geom_histogram(binwidth = 50, fill="green", color="black", alpha=0.7)+
+  labs(title = "Histogram of operational risk type 3", x = "Loss Amount (USD)", y = "Frequency")+
+  theme_bw()
+
+ggplot(or_type3, mapping = aes(x = Loss))+
+  geom_boxplot(fill = "green", color="black", alpha = 0.7)+
+  labs(title = "Boxplot of operational risk of type 3", x = "Loss Amount (USD)")+
+  theme_bw()
+
+
+# extracting outlier from data
+Quartile_1 = quantile(or_type3$Loss, 0.25)
+Quartile_2 = quantile(or_type3$Loss, 0.75)
+
+IQR <- Quartile_2 - Quartile_1
+lower_bound = Quartile_1 - 1.5*IQR
+upper_bound = Quartile_2 + 1.5*IQR
+
+# Identifying the outliers
+outlier_loss_3 = or_type3$Loss[or_type3$Loss < lower_bound | or_type3$Loss > upper_bound]
+outlier_loss_3
+
+or_type3_cleaned <- or_type3[or_type3$Loss>= lower_bound & or_type3$Loss <= upper_bound,]
+
+summary(or_type3_cleaned)
+summary(or_type3)
+
+# Histogram of distribution of Operational Risk Losses type 1
+ggplot(data = or_type3_cleaned, aes(x = Loss))+
+  geom_histogram(binwidth = 50, fill="blue", color='black', alpha=0.7)+
+  labs(title = "histogram of Operational risk type 3 after cleansing from outliers", x = "Loss amount(USD)", y = "frequency")+
+  theme_bw()
+
+# Boxplot of distribution of operational risk losses type1
+ggplot(data=or_type3_cleaned, aes( x = Loss))+
+  geom_boxplot(fill = "blue", color="black", alpha = 0.7)+
+  labs(title = "Boxplot of Operational Type 3 Risk after the cleaning from outliers", x = "Loss amount (USD)")+
+  theme_bw()
+
+# extracting year and month from date columns
+or_type3_cleaned$year = year(or_type3_cleaned$Date)
+or_type3_cleaned$Month = month(or_type3_cleaned$Date)
+
+# group by year and month
+or_loss_type3_monthly <- or_type3_cleaned %>% 
+  dplyr::group_by(year, Month) %>% 
+  summarise(Loss_3 = sum(Loss, na.rm = TRUE), .groups = "drop")
+head(or_loss_type3_monthly)
+str(or_loss_type3_monthly)
+
+# creating "month group" column based on the specified month intervals
+or_loss_type3_monthly$Month_Group <- case_when(
+  or_loss_type3_monthly$Month %in% c(1, 2, 3)~"Q1",
+  or_loss_type3_monthly$Month %in% c(4, 5, 6)~"Q2",
+  or_loss_type3_monthly$Month %in% c(7, 8, 9)~"Q3",
+  or_loss_type3_monthly$Month %in% c(10, 11, 12 )~"Q4",
+  TRUE~"Other"
+)
+
+grouped_by_month_type3 <- or_loss_type3_monthly %>% 
+  dplyr::group_by(year, Month_Group) %>% 
+  summarise(Total_Loss_3 = sum(Loss_3, na.rm = T), .groups = "drop")
+
+grouped_by_month_type3$Year_Quarter <- paste0(grouped_by_month_type3$year, "-Q",
+                                              gsub("Q", "", grouped_by_month_type3$Month_Group))
+
+or_loss_type3_quarterly <- grouped_by_month_type3 %>% 
+  dplyr::select(Year_Quarter, Total_Loss_3)
+
+
+
+# operational risk type 4
+or_type4 <- as.data.frame(lossdat[[4]])
+
+head(or_type4)
+# missing values
+colSums(is.na(or_type4))
+# duplicated row
+or_type4[duplicated(or_type4),]
+
+summary(or_type4)
+
+ggplot(or_type4, mapping = aes(x = Loss))+
+  geom_histogram(binwidth = 50, fill="green", color="black", alpha=0.7)+
+  labs(title = "Histogram of operational risk type 4", x = "Loss Amount (USD)", y = "Frequency")+
+  theme_bw()
+
+ggplot(or_type4, mapping = aes(x = Loss))+
+  geom_boxplot(fill = "green", color="black", alpha = 0.7)+
+  labs(title = "Boxplot of operational risk of type 4", x = "Loss Amount (USD)")+
+  theme_bw()
+
+
+# extracting outlier from data
+Quartile_1 = quantile(or_type4$Loss, 0.25)
+Quartile_2 = quantile(or_type4$Loss, 0.75)
+
+IQR <- Quartile_2 - Quartile_1
+lower_bound = Quartile_1 - 1.5*IQR
+upper_bound = Quartile_2 + 1.5*IQR
+
+# Identifying the outliers
+outlier_loss_4 = or_type4$Loss[or_type4$Loss < lower_bound | or_type4$Loss > upper_bound]
+outlier_loss_4
+
+or_type4_cleaned <- or_type4[or_type4$Loss>= lower_bound & or_type4$Loss <= upper_bound,]
+
+summary(or_type4_cleaned)
+summary(or_type4)
+
+# Histogram of distribution of Operational Risk Losses type 1
+ggplot(data = or_type4_cleaned, aes(x = Loss))+
+  geom_histogram(binwidth = 50, fill="blue", color='black', alpha=0.7)+
+  labs(title = "histogram of Operational risk type 4 after cleansing from outliers", x = "Loss amount(USD)", y = "frequency")+
+  theme_bw()
+
+# Boxplot of distribution of operational risk losses type1
+ggplot(data=or_type4_cleaned, aes( x = Loss))+
+  geom_boxplot(fill = "blue", color="black", alpha = 0.7)+
+  labs(title = "Boxplot of Operational Type 4 Risk after the cleaning from outliers", x = "Loss amount (USD)")+
+  theme_bw()
+
+# extracting year and month from date columns
+or_type4_cleaned$year = year(or_type4_cleaned$Date)
+or_type4_cleaned$Month = month(or_type4_cleaned$Date)
+
+# group by year and month
+or_loss_type4_monthly <- or_type4_cleaned %>% 
+  dplyr::group_by(year, Month) %>% 
+  summarise(Loss_4 = sum(Loss, na.rm = TRUE), .groups = "drop")
+head(or_loss_type4_monthly)
+str(or_loss_type4_monthly)
+
+# creating "month group" column based on the specified month intervals
+or_loss_type4_monthly$Month_Group <- case_when(
+  or_loss_type4_monthly$Month %in% c(1, 2, 3)~"Q1",
+  or_loss_type4_monthly$Month %in% c(4, 5, 6)~"Q2",
+  or_loss_type4_monthly$Month %in% c(7, 8, 9)~"Q3",
+  or_loss_type4_monthly$Month %in% c(10, 11, 12 )~"Q4",
+  TRUE~"Other"
+)
+
+grouped_by_month_type4 <- or_loss_type4_monthly %>% 
+  dplyr::group_by(year, Month_Group) %>% 
+  summarise(Total_Loss_4 = sum(Loss_4, na.rm = T), .groups = "drop")
+
+grouped_by_month_type4$Year_Quarter <- paste0(grouped_by_month_type4$year, "-Q",
+                                              gsub("Q", "", grouped_by_month_type4$Month_Group))
+
+or_loss_type4_quarterly <- grouped_by_month_type4 %>% 
+  dplyr::select(Year_Quarter, Total_Loss_4)
+
+or_type2_df <- or_loss_type2_quarterly %>% 
+  dplyr::select(Total_Loss_2)
+
+or_type3_df <- or_loss_type3_quarterly %>% 
+  dplyr::select(Total_Loss_3)
+
+or_type4_df <- or_loss_type4_quarterly %>% 
+  dplyr::select(Total_Loss_4)
+# create a combined data frame of operational risk losses
+or_losses_total <- cbind(or_loss_type1_quarterly, or_type2_df, or_type3_df, or_type4_df)
+view(or_losses_total)
+
+or_losses_total$Total_or_Losses <- or_losses_total$Total_Loss_1 + or_losses_total$Total_Loss_2 + or_losses_total$Total_Loss_3+or_losses_total$Total_Loss_4
+or_losses_total <- as.data.frame(or_losses_total)
+head(or_losses_total)
+
+
+# Histogram for total losses
+ggplot(or_losses_total, mapping = aes(x = Total_or_Losses))+
+  geom_histogram(binwidth = 15000, fill="yellow", color="black", alpha=0.7, aes(y = ..density..))+
+  labs(title = "Distribution of Total Operational Risk Losses", 
+       x = "Operational loss (amount) in USD", y = "Frequency")+
+  scale_x_continuous(labels = scales::label_number())+
+  scale_y_continuous(labels = scales::label_number())+
+  theme_minimal()
+
+# Boxplot for total operational risk losses
+ggplot(or_losses_total, mapping = aes(x = Total_or_Losses))+
+  geom_boxplot(fill="yellow", color="black", alpha=0.7)+
+  labs(title = "Boxplot of total operational risk losses", x = "Loss amount (USD)")+
+  scale_x_continuous(labels = scales::label_number())+
+  scale_y_continuous(labels = scales::label_number())+
+  theme_bw()
+
+head(macroKZ)
+tail(macroKZ)
+view(macroKZ)
+
+macrokz_df <- data.frame(macroKZ)
+str(macrokz_df)
+
+colSums(is.na(macrokz_df))
+macrokz_df[duplicated(macrokz_df), ]
+
+head(macrokz_df)
+
+time_period <- seq(from = as.Date("2010-04-01"), to=as.Date("2024-04-01"), by="quarter")
+macrokz_df$time_period <- time_period
 
