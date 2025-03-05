@@ -638,8 +638,216 @@ macro_df_filtered$GDD_Con_R_y <- c(
          })
 )
 
+colnames(macro_df_filtered)
+
+# Transformation of Real gross value added Trade Variable
+# Calculating yearly gross value added Trade
+macro_df_filtered$Yearly_GDD_Trd_R_Sum <- c(
+  sapply(1:(nrow(macro_df_filtered)-3), 
+         function(i) sum(macro_df_filtered$GDD_Trd_R[i:(i+3)])),
+  rep(NA, 3)
+)
+
+# Calculating growth rate as the percentage of current year 
+# gross value added Trade over the previous year
+# gross value added Trade
+
+macro_df_filtered$GDD_Trd_R_y <- c(
+  rep(NA, 4),
+  sapply(5:nrow(macro_df_filtered), 
+         function(i){
+           previous_year_sum <- sum(macro_df_filtered$GDD_Trd_R[(i-4):(i-1)])
+           current_year_sum <- sum(macro_df_filtered$GDD_Trd_R[(i):(i+3)])
+           growth_rate <- (current_year_sum/previous_year_sum-1)*100
+           return(round(growth_rate, 3))
+         })
+)
 
 
+# Transfroming gross value added transportation variable
+# calculating yearly gross value added transportion
+macro_df_filtered$Yearly_GDD_Trn_R_Sum <- c(
+  sapply(1:(nrow(macro_df_filtered)-3),
+         function(i) sum(macro_df_filtered$GDD_Trn_R[i:(i+3)])),
+  rep(NA,3)
+)
+
+# Calculating growth rate as percentage of current_year
+# gross value added transportation over previous year
+# gross value added
+macro_df_filtered$GDD_Trn_R_y <- c(
+  rep(NA, 4),
+  sapply(5:nrow(macro_df_filtered), 
+         function(i){
+           previous_year_sum <- sum(macro_df_filtered$GDD_Trn_R[(i-4):(i-1)])
+           current_year_sum <- sum(macro_df_filtered$GDD_Trn_R[(i):(i+3)])
+           growth_rate <- (current_year_sum/previous_year_sum-1)*100
+           return(round(growth_rate, 3))
+         })
+)
 
 
+# Transfroming gross value added Infomation variable
+# Calculating yearly gross value added information
+macro_df_filtered$Yearly_GDD_Inf_R_Sum <- c(
+  sapply(
+    1:(nrow(macro_df_filtered)-3),
+    function(i) sum(macro_df_filtered$GDD_Inf_R[(i):(i+3)])
+  ), rep(NA, 3)
+)
 
+# Calculating growth rate as percentage of current year
+# gross value added Information over previous year
+# gross value added Information
+macro_df_filtered$GDD_Inf_R_y <- c(
+  rep(NA, 4),
+  sapply(5:nrow(macro_df_filtered), 
+         function(i){
+           previous_year_sum <- sum(macro_df_filtered$GDD_Inf_R[(i-4):(i-1)])
+           current_year_sum <- sum(macro_df_filtered$GDD_Inf_R[(i):(i+3)])
+           growth_rate <- (current_year_sum/previous_year_sum-1)*100
+           return(round(growth_rate, 3))
+         })
+)
+
+# Transfroming gross value added Real Estate variable
+# calculating yearly gross value added Real Estate
+macro_df_filtered$Yearly_GDD_Est_R_Sum <- c(
+  sapply(1:(nrow(macro_df_filtered)-3), 
+         function(i) sum(macro_df_filtered$GDD_Est_R[i:(i+3)])
+         ), rep(NA,3)
+)
+
+# Growth rate as percentage of current year
+# gross value added Real Estate over previous year
+# gross value added Real Estate
+macro_df_filtered$GDD_Est_R_y <- c(
+  rep(NA, 4),
+  sapply(5:nrow(macro_df_filtered), function(i){
+    previous_year_sum <- sum(macro_df_filtered$GDD_Est_R[(i-4):(i-1)])
+    current_year_sum <- sum(macro_df_filtered$GDD_Est_R[(i):(i+3)])
+    growth_rate = (current_year_sum/previous_year_sum-1)*100
+    return(round(growth_rate, 3))
+  })
+)
+
+# Transfroming real gross value added variable
+# Calculating yearly real gross value added
+macro_df_filtered$Yearly_GDD_R_Sum <- c(
+  sapply(1:(nrow(macro_df_filtered)-3), 
+         function(i) sum(macro_df_filtered$GDD_R[(i):(i+3)])),
+  rep(NA, 3)
+)
+
+# calculating growth rate as percentage of current year
+# Real gross value added over previous year
+# real gross value added
+macro_df_filtered$GDD_R_y <- c(
+  rep(NA, 4),
+  sapply(5:nrow(macro_df_filtered), function(i){
+    previous_year_sum <- sum(macro_df_filtered$GDD_R[(i-4):(i-1)])
+    current_year_sum <- sum(macro_df_filtered$GDD_R[(i):(i+3)])
+    growth_rate <- (current_year_sum/previous_year_sum-1)*100
+    return(round(growth_rate, 3))
+  })
+)
+
+# macro_df_filtered$Rincpop_q
+# transfroming Real average population income monthly variable
+# calculating yearly real average population income monthly
+macro_df_filtered$Yearly_Rincpop_q_Sum <- c(
+  sapply(1:(nrow(macro_df_filtered)-3),
+         function(i) sum(macro_df_filtered$Rincpop_q[i:(i+3)])),
+  rep(NA, 3)
+)
+
+# Calculating growth rate as percentage of current year
+# real population average monthly income over previous year
+# real population average monthly income
+macro_df_filtered$Rincpop_q_y <- c(
+  rep(NA, 4),
+  sapply(5:(nrow(macro_df_filtered)),
+         function(i){
+           previous_year_sum <- sum(macro_df_filtered$Rincpop_q[(i-4):(i-1)])
+           current_year_sum <- sum(macro_df_filtered$Rincpop_q[(i):(i+3)])
+           growth_rate <- (current_year_sum/previous_year_sum-1)*100
+           return(round(growth_rate, 3))
+         }
+         )
+)
+
+macro_df_filtered$Rexppop_q
+# Transfroming Real population average monthly expense variable
+# Calculating Yearly real population average monthly expense
+macro_df_filtered$Yearly_Rexppop_q_Sum <- c(
+  sapply(1:(nrow(macro_df_filtered)-3), 
+         function(i) sum(macro_df_filtered$Rexppop_q[i:(i+3)])),
+  rep(NA,3)
+)
+
+# calculating growth rate as percentage of current year
+# real population average expense over previous year
+# real population average expense
+macro_df_filtered$Rexppop_q_y <- c(
+  rep(NA, 4),
+  sapply(5:nrow(macro_df_filtered), 
+         function(i){
+           previous_year_sum <- sum(macro_df_filtered$Rexppop_q[(i-4):(i-1)])
+           current_year_sum <- sum(macro_df_filtered$Rexppop_q[(i):(i+3)])
+           growth_rate <- (current_year_sum/previous_year_sum-1)*100
+           return(round(growth_rate, 3))
+         })
+)
+
+macro_df_filtered$Rwage_q
+# tranfroming variable real population average wage variable
+# calculating yearly real population average wage
+macro_df_filtered$Yearly_Rwage_q_Sum <- c(
+  sapply(1:(nrow(macro_df_filtered)-3),
+         function(i) sum(macro_df_filtered$Rwage_q[i:(i+3)])
+         ), rep(NA, 3)
+)
+
+# growth rate as percentage of current year
+# real population average monthly wage over previous year
+# real population average monthly wage
+macro_df_filtered$Rwage_q_y <- c(
+  rep(NA, 4),
+  sapply(5:(nrow(macro_df_filtered)), function(i){
+    previous_year_sum <- sum(macro_df_filtered$Rwage_q[(i-4):(i-1)])
+    current_year_sum <- sum(macro_df_filtered$Rwage_q[i:(i+3)])
+    growth_rate = (current_year_sum/previous_year_sum-1)*100
+    return(round(growth_rate,3))
+  })
+)
+
+# Transformation of Inflatin variable
+# Calculating quarterly growth of Inflation
+
+macro_df_filtered$cpi_q <- c(NA, diff(macro_df_filtered$cpi)/
+                               head(macro_df_filtered$cpi, -1)*100)
+
+# calculating yearly growth of inflation
+macro_df_filtered$cpi_y <- c(rep(NA, 4),
+                             sapply(5:nrow(macro_df_filtered),
+                                    function(i){
+                                      yearly_growth <- (macro_df_filtered$cpi[i] - macro_df_filtered$cpi[i-4])/macro_df_filtered$cpi[i-4]*100
+                                      return(round(yearly_growth, 3))
+                                    }
+                                    )
+                             )
+str(macro_df_filtered)
+
+
+# filtering macroeconomic dataframe excluding not transformed variables
+macro_df_cleaned <- macro_df_filtered %>% 
+  dplyr::select(-real_gdp, -GDD_Agr_R, -GDD_Min_R, -GDD_Man_R,
+                -GDD_Elc_R, -GDD_Con_R, -GDD_Trd_R, -GDD_Trn_R,
+                -GDD_Inf_R, -GDD_Est_R, -GDD_R, -Rincpop_q,
+                -Rexppop_q, -Rwage_q, -Yearly_GDP_Sum, -ntrade_Trd, -ntrade_Trn,
+                -Yearly_GDD_Agr_R_Sum, -Yearly_GDD_Min_R_Sum, -Yearly_GDD_Man_R_Sum,
+                -Yearly_GDD_Con_R_Sum, -Yearly_GDD_Elc_R_Sum, -Yearly_GDD_Est_R_Sum,
+                -Yearly_GDD_Inf_R_Sum, -Yearly_GDD_Trd_R_Sum, -Yearly_GDD_Trn_R_Sum, 
+                -Yearly_Rincpop_q_Sum, -Yearly_Rexppop_q_Sum, -Yearly_Rwage_q_Sum, -Yearly_GDD_R_Sum)
+
+str(macro_df_cleaned)
