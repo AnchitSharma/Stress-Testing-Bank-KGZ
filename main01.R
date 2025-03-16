@@ -851,3 +851,128 @@ macro_df_cleaned <- macro_df_filtered %>%
                 -Yearly_Rincpop_q_Sum, -Yearly_Rexppop_q_Sum, -Yearly_Rwage_q_Sum, -Yearly_GDD_R_Sum)
 
 str(macro_df_cleaned)
+
+
+# Creating final data frame for modeling
+str(or_losses_total)
+table(or_losses_total$Year_Quarter)
+
+# truncating total operational Risk losses data frame from Q1-2011 to Q4-2016
+or_losses_total$Year_Quarter <- as.character(or_losses_total$Year_Quarter)
+str(or_losses_total)
+
+or_losses_filtered <- or_losses_total %>% 
+  filter(Year_Quarter >= "2011-Q1")
+
+# Converting Quarter to Date
+or_losses_filtered$Year <- substr(or_losses_filtered$Year_Quarter, 1, 4)
+or_losses_filtered$Quarter <- substr(or_losses_filtered$Year_Quarter, 6, 7)
+or_losses_filtered$Date_2 <- as.Date(
+  paste0(or_losses_filtered$Year, "-", 
+         case_when(or_losses_filtered$Quarter == "Q1" ~ "01",
+                   or_losses_filtered$Quarter == "Q2" ~ "04",
+                   or_losses_filtered$Quarter == "Q3" ~ "07",
+                   or_losses_filtered$Quarter == "Q4" ~ "10"
+                   ), "-01"
+         ), format = "%Y-%m-%d"
+) 
+
+head(or_losses_filtered)
+
+usd_kzt_exchange_rate <- c(
+  `2016`=	342.16,
+  `2015`= 221.73,
+  `2014`=	179.19,
+  `2013`=	152.13,
+  `2012`=	149.11,
+  `2011`=	146.62,
+  `2010`=	147.35
+)
+
+# Defining function to convert Operational Risk Losses to KZT based on the year
+convert_to_kzt <- function(year, value){
+  exchange_rate <- usd_kzt_exchange_rate[as.character(year)]
+  if(!is.null(exchange_rate)){
+    return(value * exchange_rate)
+  } else {
+    return(NA)
+  }
+}
+
+# Applying the conversion for each relevant column
+or_losses_filtered$Total_Loss_1_KZT <- mapply(
+  convert_to_kzt, as.numeric(format(or_losses_filtered$Date_2, "%Y")),
+  or_losses_filtered$Total_Loss_1
+)
+
+or_losses_filtered$Total_Loss_2_KZT <- mapply(
+  convert_to_kzt, as.numeric(format(or_losses_filtered$Date_2, "%Y")),
+  or_losses_filtered$Total_Loss_2
+)
+
+or_losses_filtered$Total_Loss_3_KZT <- mapply(
+  convert_to_kzt, as.numeric(format(or_losses_filtered$Date_2, "%Y")),
+  or_losses_filtered$Total_Loss_3
+)
+
+or_losses_filtered$Total_Loss_4_KZT <- mapply(
+  convert_to_kzt, as.numeric(format(or_losses_filtered$Date_2, "%Y")),
+  or_losses_filtered$Total_Loss_4
+)
+
+or_losses_filtered$Total_or_Losses_KZT <- mapply(
+  convert_to_kzt, as.numeric(format(or_losses_filtered$Date_2, "%Y")),
+  or_losses_filtered$Total_or_Losses
+)
+
+
+str(banking_stats_filtered)
+
+# Define the range for filtering
+start_date <- as.Date("2011-03-01")
+end_date <- as.Date("2016-12-01")
+
+# Filtering the data between specified range
+banking_stats_filtered_filtered <- banking_stats_filtered %>% 
+  filter(Date >= start_date & Date <= end_date)
+
+# Creating combined dataset for banking statistics
+bank_x <- cbind(banking_stats_filtered_filtered, or_losses_filtered)
+
+
+# Creating comparision chart for total assets and Total operational risk losses
+bank_x$Date <- as.factor(bank_x$Date)
+
+p <- ggplot(bank_x, aes(x = Date))+
+  geom_line(aes(y = Value/10000000000, color="Total Assets"), linewidth=1, group=1)+
+  geom_point(aes(y = Value/10000000000, color="Total Assets"), size = 3)+
+  geom_line(aes(y = (Total_or_Losses_KZT/1000)*scale_factor, color = "Total Losses"),
+            linewidth=1, group=1)+
+  geom_point(aes(y = (Total_or_Losses_KZT/1000)*scale_factor, color="Total Losses"), size=3)+
+  scale_color_manual(values = c("Total Assets" = "blue", "Total Losses" = "red"))+
+  scale_y_continuous(
+    name = "Total Assets (Billion KZT)",
+    labels = comma,
+    sec.axis = sec_axis(~ . / scale_factor,
+                        name = "Total Losses (Thousands KZT)",
+                        labels = comma
+                        )
+  )+ labs(
+    title = "Comparison of Total Assets to Operational Risk Losses",
+    x = "Yearly",
+    color = ""
+  )+ theme_minimal()+
+  theme(
+    axis.title.y.left = element_text(color = "blue"),
+    axis.text.y.left = element_text(color = "blue"),
+    axis.title.y.right = element_text(color = "red"),
+    axis.text.y.right = element_text(color = 'red'),
+    legend.position = "top",
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+scale_factor <- max(bank_x$Value/10000000000)/ max(bank_x$Total_or_Losses_KZT/1000)
+print(p)
+
+
+
+
